@@ -1,0 +1,300 @@
+<!-- blink/templates/blink/index.html -->
+<!DOCTYPE html>
+<html lang="en" style="background-color: darkcyan;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blink Detection</title>
+    <style>
+        body {
+            background-color: #F8EDED;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #173B45;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: auto;
+            min-height: 100vh;
+            /* overflow: hidden; */
+        }
+
+        #blinkform {
+            background-color: #FFFFFF;
+            border: 1px solid #FF8225;
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        #blinkform h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #B43F3F;
+        }
+
+        #blinkform p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #173B45;
+        }
+
+        input[type="text"],
+        input[type="checkbox"] {
+            padding: 12px;
+            border: 1px solid #FF8225;
+            border-radius: 8px;
+            width: calc(100% - 24px);
+            margin-bottom: 20px;
+            background-color: #F8EDED;
+            color: #173B45;
+        }
+
+        button {
+            background-color: #FF8225;
+            color: #FFFFFF;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #B43F3F;
+            transform: scale(1.05);
+        }
+
+        .loader {
+            border: 4px solid #F8EDED;
+            border-top: 4px solid #FF8225;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            margin: 20px auto;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #camera-section {
+            background-color: #173B45;
+            border-radius: 12px;
+            padding: 5px 30px;
+            max-width: 600px;
+            margin: 20px auto;
+            color: #FFFFFF;
+            text-align: center;
+        }
+
+        #camera-section h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            padding-top: 0;
+            margin-top: 0;
+        }
+
+        #video {
+            width: 100%;
+            height: 60vh;
+        }
+
+        #timer-section {
+            font-size: 64px;
+            font-weight: bold;
+            margin: 5px 0;
+            color: #FF8225;
+        }
+
+        #message-section {
+            max-width: 600px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        #message-section .message1 {
+            background-color: #B43F3F;
+            color: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        #refreshWindow {
+            background-color: #173B45;
+            color: #FFFFFF;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        #refreshWindow:hover {
+            background-color: #FF8225;
+            transform: scale(1.05);
+        }
+
+        /* HTML: <div class="loader"></div> */
+        .loader {
+            width: 50px;
+            aspect-ratio: 1;
+            display: grid;
+            border: 4px solid #0000;
+            border-radius: 50%;
+            border-right-color: green;
+            animation: l15 1s infinite linear;
+            position: absolute;
+        }
+
+        .loader::before,
+        .loader::after {
+            content: "";
+            grid-area: 1/1;
+            margin: 2px;
+            border: inherit;
+            border-radius: 50%;
+            animation: l15 2s infinite;
+        }
+
+        .loader::after {
+            margin: 8px;
+            animation-duration: 3s;
+        }
+
+        @keyframes l15 {
+            100% {
+                transform: rotate(1turn)
+            }
+        }
+
+        @media screen and (max-width : 768px) {
+
+            #blinkform,
+            #camera-section,
+            #message-section {
+                margin-inline: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="blinkform">
+        <h1>Blink Your Way to a Healthier Vision!</h1>
+        <p>To check your eye health, we need to analyze your blinking rate. Please allow access to your camera to
+            proceed.</p>
+        <form id="blink-form" method="post">
+            {{ form.as_p }}
+            {% csrf_token %}
+            <button type="submit">Start Detection</button>
+        </form>
+    </div>
+    <div class="loader" style="display: none;"></div>
+    <div id="camera-section" style="display: none;">
+        <h2>Look at the Camera</h2>
+        <p>For the next 30 seconds, focus on the camera as we monitor your blinking. Stay still and relaxed.</p>
+        <img id="video" src="" alt="Camera Feed">
+        <div id="timer-section">30</div>
+    </div>
+
+    <div id="message-section" style="display: none;">
+        <div class="message1" id="message"></div>
+        <button id="refreshWindow" onclick="window.location.reload();">Learn More About Your Results</button>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script>
+        $('#blink-form').on('submit', function (event) {
+            $('.loader').show();
+            event.preventDefault();
+            const formData = new FormData(this);
+            $.ajax({
+                url: '', // Update with the correct URL
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    if (result.status === 'success') {
+                        $('.loader').show();
+                        $('#camera-section').show(); // Show camera section
+                        $('#blinkform').hide();
+                        $('#message-section').hide();
+                        startVideoFeed();
+                        startCountdown(30); // Start countdown for 30 seconds
+
+                        // Fetch final message after 30 seconds
+                        setTimeout(function () {
+                            $.ajax({
+                                url: '/get_final_message/',
+                                type: 'GET',
+                                success: function (messageResult) {
+                                    $('#message-section')
+                                        .show(); // Show message section
+                                    $('#message').text(messageResult
+                                        .message1); // Display final message
+                                }
+                            });
+                        }, 30000); // Fetch message after 30 seconds
+                        $('.loader').hide();
+                    } else {
+                        $('.loader').hide();
+                        $('#message').text(result.message1); // Display error message
+                    }
+                }
+            });
+        });
+
+        function startVideoFeed() {
+            const video = $('#video');
+            video.attr('src', '/video_feed/');
+            $('.loader').hide();
+            video.show();
+        }
+
+        function startCountdown(duration) {
+            const timerDisplay = $('#timer-section');
+            timerDisplay.show();
+            let timeLeft = duration;
+
+            const countdownInterval = setInterval(function () {
+                timerDisplay.text(timeLeft);
+                timeLeft--;
+
+                if (timeLeft < 0) {
+                    clearInterval(countdownInterval);
+                    timerDisplay.text(''); // Clear the timer display
+                    $('#message-section').show(); // Show message section
+                    $('#camera-section').hide(); // Show camera section
+                    // $('#message').text('Thank you, your eyes are healthy.');  // Final message
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>
