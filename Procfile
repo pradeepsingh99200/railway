@@ -1,1 +1,1 @@
-web : gunicorn BlinkDetection.wsgi  --log-file - 
+web: gunicorn BlinkDetection.wsgi --log-file -
